@@ -256,7 +256,7 @@ namespace DotaTextGame
 
         public int rate = 1000;
 
-        static string connection = "server=127.0.0.1;database=user;uid=root;password=xjkfr2017";
+        static string connection = "server=127.0.0.1;database=User;uid=root;password=xjkfr2017";
         public static MySql.Data.MySqlClient.MySqlConnection con;
         MySql.Data.MySqlClient.MySqlCommand command = new MySql.Data.MySqlClient.MySqlCommand("", con);
         bool Made = false;
@@ -285,7 +285,7 @@ namespace DotaTextGame
                     $"{lang.GamesCountString}: {wins+loses}",
                     $"{lang.WinsCountString}: {wins}",
                     $"{lang.LosesCountString}: {loses}",
-                    $"{lang.WinrateString}: {winrate.ToString("#.##")}%",
+                    $"{lang.WinrateString}: {winrate}%",
                     $"{lang.RatingString}: {rate}",
                 };
             return string.Join("\n", lines);

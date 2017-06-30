@@ -23,7 +23,7 @@ namespace DotaTextGame
             com.ExecuteNonQuery();
             com.CommandText = "USE User;";
             com.ExecuteNonQuery();
-            com.CommandText = "CREATE TABLE IF NOT EXISTS User (id BIGINT, name VARCHAR(30), language VARCHAR(25), wins INT, loses INT, rating BIGINT);";
+            com.CommandText = "CREATE TABLE IF NOT EXISTS user (id BIGINT, name VARCHAR(30), language VARCHAR(25), wins INT, loses INT, rating BIGINT);";
             com.ExecuteNonQuery();
             User.con.Close();
             com = null;
