@@ -151,11 +151,11 @@ namespace DotaTextGame
         {
             float damage = 0.0f;
             if (Feature == MainFeature.Str)
-                damage = Strength * 0.25f;
+                damage = Strength * 0.38f;
             else if (Feature == MainFeature.Agi)
-                damage = Agility * 0.25f;
+                damage = Agility * 0.38f;
             else if (Feature == MainFeature.Intel)
-                damage = Intelligence * 0.25f;
+                damage = Intelligence * 0.38f;
             DPS = damage + damage * AttackSpeed;
         }
 

@@ -464,6 +464,8 @@ namespace DotaTextGame
                         {
                             if (users.NicknameExists(message.Text))
                                 await _usr.Sender.SendAsync(lang => lang.NickNameIsAlreadyExists);
+                            else if (!TextIsValid(message.Text))
+                                await _usr.Sender.SendAsync(lang => lang.NicknameInputError);
                             else if (message.Text.Length > 10)
                                 await _usr.Sender.SendAsync(lang => lang.LengthOfNicknameError);
                             else
@@ -492,6 +494,11 @@ namespace DotaTextGame
                 Console.WriteLine(ex.Message);
             }
 
+        }
+
+        private bool TextIsValid(string text)
+        {
+            return !string.IsNullOrEmpty(text) && !Regex.IsMatch(text, @"[^a-zA-z\d_]");
         }
 
         private Game GetActiveGame(long gameID)

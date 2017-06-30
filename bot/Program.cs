@@ -14,7 +14,7 @@ namespace DotaTextGame
         [STAThread]
         static void Main(string[] args)
         {
-            string connection = "Server=localhost;Uid=root;pwd=xjkfr2017";
+            string connection = "Server=localhost;Uid=root;pwd=xjkfr2017;CharSet=utf8;";
             User.con = new MySql.Data.MySqlClient.MySqlConnection(connection);
 
             MySql.Data.MySqlClient.MySqlCommand com = new MySql.Data.MySqlClient.MySqlCommand("", User.con);

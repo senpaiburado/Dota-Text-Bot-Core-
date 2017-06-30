@@ -256,7 +256,7 @@ namespace DotaTextGame
 
         public int rate = 1000;
 
-        static string connection = "server=127.0.0.1;database=User;uid=root;password=xjkfr2017";
+        static string connection = "server=127.0.0.1;database=User;uid=root;password=xjkfr2017;CharSet=utf8;";
         public static MySql.Data.MySqlClient.MySqlConnection con;
         MySql.Data.MySqlClient.MySqlCommand command = new MySql.Data.MySqlClient.MySqlCommand("", con);
         bool Made = false;
@@ -940,7 +940,7 @@ namespace DotaTextGame
                     if (lang == Language.English)
                         return "Account has been removed.";
                     else if (lang == Language.Russian)
-                        return "Учётная запись бьла удалена.";
+                        return "Учётная запись была удалена.";
                     return "";
                 }
             }
@@ -1677,6 +1677,18 @@ namespace DotaTextGame
                     return "";
                 }
             }
+
+            public string NicknameInputError
+            {
+                get
+                {
+                    if (lang == Language.English)
+                        return "Nickname can contain latin letters, digits and '_' only.";
+                    else if (lang == Language.Russian)
+                        return "Имя может содержать только латинские буквы, цифры и '_'";
+                    return "";
+                }
+            }
             public string @ErrorPickingIncorrectCommand
             {
                 get
@@ -2253,7 +2265,7 @@ namespace DotaTextGame
                             msg += "Strength adds 20 health and 0.07 health regeneration per point.\n";
                             msg += "Agility adds 0.14 armor and 0.02 attack speed per point.\n";
                             msg += "Intelligence adds 4.5 mana and 0.04 mana regeneration per point.\n";
-                            msg += "The hero's damage is equal to the product of the main characteristic by 0.25 and the attack speed.\n";
+                            msg += "The hero's damage is equal to the product of the main characteristic by 0.38 and the attack speed.\n";
                             msg += "Mana is needed to use the abilities of the hero.\n";
                             msg += "Armor blocks a certain amount of damage from the enemy.\n";
                             msg += "To get information about the hero and his abilities, use the '/' + hero name. For example: /juggernaut.\n";
@@ -2270,7 +2282,7 @@ namespace DotaTextGame
                             msg += "Сила прибавляет 20 единиц здоровья и 0.07 регенерации здоровья за каждое очко.\n";
                             msg += "Ловкость прибавляет 0.14 брони и 0.02 скорости атаки за каждое очко.\n";
                             msg += "Интеллект прибавляет 4.5 маны и 0.04 регенерации маны за каждое очко.\n";
-                            msg += "Урон героя равен произведению основной характеристики на 0.25 и на скорость атаки.\n";
+                            msg += "Урон героя равен произведению основной характеристики на 0.38 и на скорость атаки.\n";
                             msg += "Мана нужна для использования способностей героя.\n";
                             msg += "Броня блокирует определённое количество урона от противника.\n";
                             msg += "Чтобы получить информацию о герое и его способностях, используйте '/' + имя героя. Например: /juggernaut.\n";
