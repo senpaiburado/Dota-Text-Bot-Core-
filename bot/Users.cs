@@ -216,7 +216,22 @@ namespace DotaTextGame
             {
                 MySqlCommand com = new MySqlCommand($"DELETE FROM user WHERE id = {UserID};", User.con);
                 await User.con.OpenAsync();
-                await com.ExecuteNonQueryAsync();
+                try
+                {
+                    await com.ExecuteNonQueryAsync();
+                }
+                catch (MySqlException ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    User.con = new MySqlConnection(User.connection);
+                    com.Connection = User.con;
+                    await com.ExecuteNonQueryAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    getUserByID(UserID)?.Sender?.SendAsync(lang => $"{lang.Error}!");
+                }
                 await User.con.CloseAsync();
                 users.Remove(UserID);
                 return true;
@@ -256,7 +271,7 @@ namespace DotaTextGame
 
         public int rate = 1000;
 
-        static string connection = "server=127.0.0.1;database=User;uid=root;password=xjkfr2017;CharSet=utf8;";
+        public static string connection = "server=127.0.0.1;database=User;uid=root;password=xjkfr2017;CharSet=utf8;";
         public static MySql.Data.MySqlClient.MySqlConnection con;
         MySql.Data.MySqlClient.MySqlCommand command = new MySql.Data.MySqlClient.MySqlCommand("", con);
         bool Made = false;
@@ -310,13 +325,20 @@ namespace DotaTextGame
             net_status = NetworkStatus.Offline;
 
             command.CommandText = $"SELECT 1 FROM user WHERE id = {ID} limit 1;";
-            await command.ExecuteNonQueryAsync();
-            if (await command.ExecuteScalarAsync() != DBNull.Value && await command.ExecuteScalarAsync() != null)
+            try
             {
-                Made = true;
-            }
-            else
+                await command.ExecuteNonQueryAsync();
+                if (await command.ExecuteScalarAsync() != DBNull.Value && await command.ExecuteScalarAsync() != null)
+                {
+                    Made = true;
+                }
+                else
+                    Made = false;
+            } catch (MySql.Data.MySqlClient.MySqlException ex)
+            {
+                Console.WriteLine(ex.Message);
                 Made = false;
+            }
             await con.CloseAsync();
         }
 
@@ -1449,9 +1471,9 @@ namespace DotaTextGame
                 get
                 {
                     if (lang == Language.English)
-                        return "Nickname should not contain more than 10 characters!";
+                        return "Nickname should not contain more than 20 characters!";
                     else if (lang == Language.Russian)
-                        return "Ник не должен содержать более 10 символов!";
+                        return "Ник не должен содержать более 20 символов!";
                     return "";
                 }
             }
@@ -1576,6 +1598,18 @@ namespace DotaTextGame
                         return "Armor Decreasing";
                     else if (lang == Language.Russian)
                         return "Ослабление брони";
+                    return "";
+                }
+            }
+
+            public string @Error
+            {
+                get
+                {
+                    if (lang == Language.English)
+                        return "Error";
+                    else if (lang == Language.Russian)
+                        return "Ошибка";
                     return "";
                 }
             }

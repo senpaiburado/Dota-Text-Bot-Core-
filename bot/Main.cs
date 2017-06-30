@@ -466,7 +466,7 @@ namespace DotaTextGame
                                 await _usr.Sender.SendAsync(lang => lang.NickNameIsAlreadyExists);
                             else if (!TextIsValid(message.Text))
                                 await _usr.Sender.SendAsync(lang => lang.NicknameInputError);
-                            else if (message.Text.Length > 10)
+                            else if (message.Text.Length > 20)
                                 await _usr.Sender.SendAsync(lang => lang.LengthOfNicknameError);
                             else
                             {
