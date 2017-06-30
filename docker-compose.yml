@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  revcom_bot:
+    image: revcom_bot
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
