@@ -29,7 +29,8 @@ namespace DotaTextGame.Heroes.Agility
         // Ability Passive : Electrical Hit
         public static string AbiNamePassive = "Electrical Hit";
         private float ElectricalHitDamage = 200.0f;
-        private float ElectricalHitChance = 15.0f;
+        private float ElectricalHitChanceDefault = 10.0f;
+        private float ElectricalHitChance;
 
         // Ability Three : Eye of the Storm
         public static string AbiNameThree = "Eye of the Storm";
@@ -89,6 +90,20 @@ namespace DotaTextGame.Heroes.Agility
             msg += $"{lang.SelectAbility}:";
             return msg;
         }
+
+        protected override void UpdateAbilitiesChanceRandom()
+        {
+            if (ElectricalHitChance + ElectricalHitChanceDefault >= 100.0f)
+                ElectricalHitChance = ElectricalHitChanceDefault;
+            else
+                ElectricalHitChance += ElectricalHitChanceDefault;
+        }
+
+        protected override void InitPassiveAbilities()
+        {
+            ElectricalHitChance = ElectricalHitChanceDefault;
+        }
+
         public override void UpdateCountdowns()
         {
             if (PlasmaFieldCD > 0)
@@ -193,27 +208,37 @@ namespace DotaTextGame.Heroes.Agility
 
             if (GetRandomNumber(1, 101) >= target.MissChance)
             {
+                UpdateMissChanceRandom();
                 damage += this.DPS + this.AdditionalDamage;
                 damage -= target.Armor;
                 if (GetRandomNumber(1, 101) <= StunHitChance)
                 {
                     target.StunCounter++;
                     damage += StunDamage;
+                    SetStunChanceToDefault();
                     attakerMessages.Add(lang => $"{lang.StunningHit}!");
                     excepterMessages.Add(lang => $"{lang.TheEnemyStunnedYou}");
                 }
+                else
+                    UpdateStunChanceRandom();
                 if (GetRandomNumber(1, 101) <= ElectricalHitChance)
                 {
                     damage += target.CompileMagicDamage(ElectricalHitDamage);
+                    ElectricalHitChance = ElectricalHitChanceDefault;
                     attakerMessages.Add(lang => $"{AbiNamePassive}!");
                     excepterMessages.Add(lang => $"{AbiNamePassive}!");
                 }
+                else
+                    UpdateAbilitiesChanceRandom();
                 if (GetRandomNumber(1, 101) <= CriticalHitChance)
                 {
                     damage *= CriticalHitMultiplier;
+                    SetCritChanceToDefault();
                     attakerMessages.Add(lang => $"{lang.CriticalHit}!");
                     excepterMessages.Add(lang => lang.TheEnemyDealtCriticalDamageToYou);
                 }
+                else
+                    UpdateCriticalChanceRandom();
                 attakerMessages.Add(lang => lang.GetAttackedMessageForAttacker(Convert.ToInt32(damage)));
                 excepterMessages.Add(lang => lang.GetAttackedMessageForExcepter(Convert.ToInt32(damage)));
             }
@@ -221,6 +246,7 @@ namespace DotaTextGame.Heroes.Agility
             {
                 attakerMessages.Add(lang => lang.YouMissedTheEnemy);
                 excepterMessages.Add(lang => lang.TheEnemyMissedYou);
+                SetMissChanceToDefault();
             }
 
             target.GetDamage(damage);

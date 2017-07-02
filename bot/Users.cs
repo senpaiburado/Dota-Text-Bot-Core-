@@ -386,10 +386,11 @@ namespace DotaTextGame
                     if (con.State == System.Data.ConnectionState.Open)
                         await con.CloseAsync();
                 }
-                finally
+                catch (Exception ex)
                 {
-                    Console.WriteLine("Error by code.");
-                    await Sender?.SendAsync(lang => lang.Error);
+                    Console.WriteLine($"Error at Users 391: {ex.Message}");
+                    if (con.State == System.Data.ConnectionState.Open)
+                        await con.CloseAsync();
                 }
             }
         }
@@ -2008,7 +2009,7 @@ namespace DotaTextGame
                         msg += "Intelligence - 155\n";
                         msg += "Sniper's abilities:\n\n";
                         msg += $"1 - {Heroes.Sniper.AbiNameOne}\nSniper releases a charge of shrapnel, inflicting 100 magical damage each step for 8 steps, and also weakening the enemy by 75 for 8 steps.\n\n";
-                        msg += $"2 - {Heroes.Sniper.AbiNamePassive}\nThe sniper gets the opportunity to hit the enemy's head, disabling him for 1-2 steps.\n\n";
+                        msg += $"2 - {Heroes.Sniper.AbiNamePassive}\nThe sniper gets the opportunity to hit the enemy's head, disabling him for 1 step.\n\n";
                         msg += $"3 - {Heroes.Sniper.AbiNameTwo}\nSniper makes 5 shots, each shot with a 65% chance hits the enemy, causing him 350 physical damage.\n\n";
                         msg += $"4 - {Heroes.Sniper.AbiNameThree}\nSniper takes the strongest charge and accurately targets the enemy, inflicting 1000 magical damage to him.";
                         return msg;
@@ -2021,7 +2022,7 @@ namespace DotaTextGame
                         msg += "Интеллект - 155\n";
                         msg += "Способности Sniper:\n\n";
                         msg += $"1 - {Heroes.Sniper.AbiNameOne}\nSniper выпускает заряд шрапнели, нанося врагу 100 магического урона в шаг на протяжении 8 шагов, а также ослабляя врага на 75 единиц на 8 шагов.\n\n";
-                        msg += $"2 - {Heroes.Sniper.AbiNamePassive}\nSniper получает возможность попасть в голову противника, обездвиживая его на 1-2 шага.\n\n";
+                        msg += $"2 - {Heroes.Sniper.AbiNamePassive}\nSniper получает возможность попасть в голову противника, обездвиживая его на 1 шаг.\n\n";
                         msg += $"3 - {Heroes.Sniper.AbiNameTwo}\nSniper делает 5 выстрелов, каждый выстрел с шансом 65% попадает в противника, нанося ему 350 физического урона.\n\n";
                         msg += $"4 - {Heroes.Sniper.AbiNameThree}\nSniper берёт самый сильный заряд и точно целится у врага, нанося ему 1000 магического урона.\n";
                         return msg;
@@ -2108,7 +2109,7 @@ namespace DotaTextGame
                         msg += "Razor's abilities:\n\n";
                         msg += $"1 - {Heroes.Agility.Ursa.AbiNameOne}\nRazor creates a plasma field around itself, which deals 650 magic damage to the enemy.\n\n";
                         msg += $"2 - {Heroes.Agility.Ursa.AbiNameTwo}\nRazor steals from the enemy 35% damage for 5 steps.\n\n";
-                        msg += $"3 - {Heroes.Agility.Ursa.AbiNamePassive} (Passive)\nRazor during an attack with a probability of 15% can deal an enemy electrical hit - 200 magic damage.\n\n";
+                        msg += $"3 - {Heroes.Agility.Ursa.AbiNamePassive} (Passive)\nRazor during an attack with a probability of 10% can deal an enemy electrical hit - 200 magic damage.\n\n";
                         msg += $"4 - {Heroes.Agility.Ursa.AbiNameThree}\nRazor causes a storm that, when activated, deals 250 physical damage to the enemy and reduces armor by 5. Each step for 7 steps the enemy receives 85 damage and loses 1 armor.\n";
                         return msg;
                     }
@@ -2121,7 +2122,7 @@ namespace DotaTextGame
                         msg += "Способности Razor:\n\n";
                         msg += $"1 - {Heroes.Agility.Razor.AbiNameOne}\nRazor создаёт вокруг себя плазменное поле, которое наносит противнику 650 магического урона.\n\n";
                         msg += $"2 - {Heroes.Agility.Razor.AbiNameTwo}\nRazor ворует у противника 35% урона на 5 шагов.\n\n";
-                        msg += $"3 - {Heroes.Agility.Razor.AbiNamePassive} (Пассивная)\nRazor во время атаки с шансом 15% может нанести противнику электрический удар - 200 магического урона.\n\n";
+                        msg += $"3 - {Heroes.Agility.Razor.AbiNamePassive} (Пассивная)\nRazor во время атаки с шансом 10% может нанести противнику электрический удар - 200 магического урона.\n\n";
                         msg += $"4 - {Heroes.Agility.Razor.AbiNameThree}\nRazor вызывает шторм, который при активации наносит врагу 250 физического урона и снижает броню на 5 единиц. Каждый шаг на протяжении 7 шагов противник получает 85 чистого урона и теряет 1 единицу брони.\n";
                         return msg;
                     }

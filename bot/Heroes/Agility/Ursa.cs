@@ -128,8 +128,8 @@ namespace DotaTextGame.Heroes.Agility
             MP -= OverpowerManaPay;
             OverpowerActivated = true;
             AttackSpeed += OverpowerAddAttackSpeed;
-            UpdateDPS();
             DPS += OverpowerAddDPS;
+            UpdateDPS();
             await Sender.SendAsync(lang => lang.GetMessageYouActivated(AbiNameTwo));
             await target.Sender.SendAsync(lang => lang.GetMessageEnemyActivated(AbiNameTwo));
             return true;

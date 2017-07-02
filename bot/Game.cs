@@ -88,15 +88,6 @@ namespace DotaTextGame
                         await player.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(player.User));
                         await enemyPlayer.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(enemyPlayer.User));
                     }
-                    finally
-                    {
-                        Console.WriteLine("Game 93: Unexpected exception!");
-                        await player.SendAsync(lang => lang.Error);
-                        await enemyPlayer.SendAsync(lang => lang.Error);
-                        player.Reset();
-                        enemyPlayer.Reset();
-                        game.Reset();
-                    }
                 }
                 else
                 {
@@ -208,8 +199,8 @@ namespace DotaTextGame
             await enemyPlayer.User.AddWin();
             await player.SendAsync(lang => lang.Retreat, kb);
             await enemyPlayer.SendAsync(lang => lang.RetreatEnemy, kb);
-            await player.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
-            await enemyPlayer.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
+            //await player.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
+            //await enemyPlayer.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
             game.Reset();
         }
 
@@ -361,8 +352,8 @@ namespace DotaTextGame
             await loser.SendAsync(lang => GetMessageForMe(lang, loser.hero));
             await loser.SendAsync(lang => GetMessageForEnemy(lang, winner.hero));
 
-            await winner.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
-            await loser.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
+            //await winner.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
+            //await loser.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
         }
 
         private const short MaxPageValue = 3;

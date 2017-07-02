@@ -36,11 +36,14 @@ namespace DotaTextGame
 
         protected float AttackSpeed { get; set; }
         protected float CriticalHitChance { get; set; }
+        protected float CriticalHitChanceDefault { get; set; }
         protected float CriticalHitMultiplier { get; set; }
         protected float HpStealPercent { get; set; }
         protected float HpStealAdditional { get; set; }
         protected float StunHitChance { get; set; }
+        protected float StunHitChanceDefault { get; set; }
         public float MissChance { get; set; }
+        public float MissChanceDefault { get; set; }
         public float StunDamage { get; set; }
 
         protected float AdditionalDamage = 0.0f;
@@ -75,6 +78,8 @@ namespace DotaTextGame
         protected float AttackWeakeningPower = 0.0f;
 
         public bool StealingDPS = false;
+
+        protected float AdditionalRandomCrit { get; set; }
 
         // Abilities:
 
@@ -130,13 +135,15 @@ namespace DotaTextGame
 
             UpdateDPS();
 
-            CriticalHitChance = 15.0f;
+            CriticalHitChanceDefault = 5.0f;
             CriticalHitMultiplier = 1.5f;
             HpStealPercent = 0.2f;
             HpStealAdditional = 0.0f;
-            MissChance = 8.0f;
-            StunHitChance = 10.0f;
+
+            MissChanceDefault = 1.5f;
+            StunHitChanceDefault = 3.0f;
             StunDamage = DPS / 100 * 15;
+            SetRandomChancesDefault();
 
             InitAdditional();
             InitPassiveAbilities();
@@ -167,6 +174,57 @@ namespace DotaTextGame
         virtual protected void InitPassiveAbilities()
         {
 
+        }
+
+        virtual protected void UpdateCriticalChanceRandom()
+        {
+            if (CriticalHitChance + StunHitChanceDefault >= 100.0f)
+                SetCritChanceToDefault();
+            else
+                CriticalHitChance += CriticalHitChanceDefault;
+        }
+
+        virtual protected void UpdateStunChanceRandom()
+        {
+            if (StunHitChance + StunHitChanceDefault >= 100.0f)
+                SetStunChanceToDefault();
+            else
+                StunHitChance += StunHitChanceDefault;
+        }
+
+        virtual protected void UpdateMissChanceRandom()
+        {
+            if (MissChance + MissChanceDefault >= 100.0f)
+                SetMissChanceToDefault();
+            else
+                MissChance += MissChanceDefault;
+        }
+
+        virtual protected void UpdateAbilitiesChanceRandom()
+        {
+            
+        }
+
+        virtual protected void SetRandomChancesDefault()
+        {
+            CriticalHitChance = CriticalHitChanceDefault;
+            MissChance = MissChanceDefault;
+            StunHitChance = StunHitChanceDefault;
+        }
+
+        virtual protected void SetCritChanceToDefault()
+        {
+            CriticalHitChance = CriticalHitChanceDefault;
+        }
+
+        virtual protected void SetStunChanceToDefault()
+        {
+            StunHitChance = StunHitChanceDefault;
+        }
+
+        virtual protected void SetMissChanceToDefault()
+        {
+            MissChance = MissChanceDefault;
         }
 
         protected void WeakAttack(int time, float power, IHero target)
@@ -321,21 +379,28 @@ namespace DotaTextGame
 
             if (GetRandomNumber(1, 101) >= target.MissChance)
             {
+                UpdateMissChanceRandom();
                 damage += this.DPS + this.AdditionalDamage;
                 damage -= target.Armor;
                 if (GetRandomNumber(1, 101) <= StunHitChance)
                 {
                     target.StunCounter++;
                     damage += StunDamage;
+                    SetStunChanceToDefault();
                     attakerMessages.Add(lang => $"{lang.StunningHit}!");
                     excepterMessages.Add(lang => $"{lang.TheEnemyStunnedYou}");
                 }
+                else
+                    UpdateStunChanceRandom();
                 if (GetRandomNumber(1, 101) <= CriticalHitChance)
                 {
                     damage *= CriticalHitMultiplier;
+                    SetCritChanceToDefault();
                     attakerMessages.Add(lang => $"{lang.CriticalHit}!");
                     excepterMessages.Add(lang => lang.TheEnemyDealtCriticalDamageToYou);
                 }
+                else
+                    UpdateCriticalChanceRandom();
                 attakerMessages.Add(lang => lang.GetAttackedMessageForAttacker(Convert.ToInt32(damage)));
                 excepterMessages.Add(lang => lang.GetAttackedMessageForExcepter(Convert.ToInt32(damage)));
             }
@@ -343,6 +408,7 @@ namespace DotaTextGame
             {
                 attakerMessages.Add(lang => lang.YouMissedTheEnemy);
                 excepterMessages.Add(lang => lang.TheEnemyMissedYou);
+                SetMissChanceToDefault();
             }
             
             target.GetDamage(damage);

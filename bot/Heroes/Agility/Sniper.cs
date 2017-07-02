@@ -21,7 +21,8 @@ namespace DotaTextGame.Heroes
         public static string AbiNamePassive = "Headshot";
         protected float HeadshotDamage = 90.0f;
         protected int HeadshotDisableDuration = 1;
-        protected float HeadshotDisableChance = 25;
+        protected float HeadshotDisableChance;
+        protected float HeadshotDisableChanceDefault = 15.0f;
 
         // Ability Two : Machine Gun
         public static string AbiNameTwo = "Machine Gun";
@@ -59,6 +60,20 @@ namespace DotaTextGame.Heroes
             if (AssassinateCD > 0)
                 AssassinateCD--;
         }
+
+        protected override void InitPassiveAbilities()
+        {
+            HeadshotDisableChance = HeadshotDisableChanceDefault;
+        }
+
+        protected override void UpdateAbilitiesChanceRandom()
+        {
+            if (HeadshotDisableChance + HeadshotDisableChanceDefault > 100.0f)
+                HeadshotDisableChance = HeadshotDisableChanceDefault;
+            else
+                HeadshotDisableChance += HeadshotDisableChanceDefault;
+        }
+
         public override string GetMessageAbilitesList(User.Text lang)
         {
             string msg = $"{lang.List}:\n";
@@ -160,33 +175,44 @@ namespace DotaTextGame.Heroes
 
             if (GetRandomNumber(1, 101) >= target.MissChance)
             {
+                UpdateMissChanceRandom();
                 damage += this.DPS + this.AdditionalDamage;
                 damage -= target.Armor;
                 if (GetRandomNumber(1, 101) <= StunHitChance)
                 {
                     target.StunCounter++;
                     damage += StunDamage;
+                    SetStunChanceToDefault();
                     attakerMessages.Add(lang => $"{lang.StunningHit}!");
                     excepterMessages.Add(lang => $"{lang.TheEnemyStunnedYou}");
                 }
+                else
+                    UpdateStunChanceRandom();
                 if (GetRandomNumber(1, 101) <= HeadshotDisableChance)
                 {
                     damage += HeadshotDamage;
-                    DisableFull(HeadshotDisableDuration, target);
+                    DisableFull(HeadshotDisableDuration - 1, target);
+                    HeadshotDisableChance = HeadshotDisableChanceDefault;
                     attakerMessages.Add(x => $"{AbiNamePassive}!");
                     excepterMessages.Add(x => $"{AbiNamePassive}!");
                 }
+                else
+                    UpdateAbilitiesChanceRandom();
                 if (GetRandomNumber(1, 101) <= CriticalHitChance)
                 {
                     damage *= CriticalHitMultiplier;
+                    SetCritChanceToDefault();
                     attakerMessages.Add(lang => $"{lang.CriticalHit}!");
                     excepterMessages.Add(lang => lang.TheEnemyDealtCriticalDamageToYou);
                 }
+                else
+                    UpdateCriticalChanceRandom();
                 attakerMessages.Add(lang => lang.GetAttackedMessageForAttacker(Convert.ToInt32(damage)));
                 excepterMessages.Add(lang => lang.GetAttackedMessageForExcepter(Convert.ToInt32(damage)));
             }
             else
             {
+                SetMissChanceToDefault();
                 attakerMessages.Add(lang => lang.YouMissedTheEnemy);
                 excepterMessages.Add(lang => lang.TheEnemyMissedYou);
             }

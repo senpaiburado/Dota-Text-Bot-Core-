@@ -57,8 +57,9 @@ namespace DotaTextGame.Heroes
         protected override void InitPassiveAbilities()
         {
             HpStealPercent += VA_HpStealByDamagePercent;
-            CriticalHitChance += MS_CriticalHitChance;
+            CriticalHitChanceDefault += MS_CriticalHitChance;
             CriticalHitMultiplier += MS_CriticalHitMultiplier;
+            SetRandomChancesDefault();
         }
         public override string GetMessageAbilitesList(User.Text lang)
         {

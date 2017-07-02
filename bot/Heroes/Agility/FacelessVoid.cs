@@ -55,7 +55,8 @@ namespace DotaTextGame.Heroes
         protected override void InitPassiveAbilities()
         {
             StunDamage += TimeLockAddDamage;
-            StunHitChance += TimeLockAddStunChance;
+            StunHitChanceDefault += TimeLockAddStunChance;
+            SetRandomChancesDefault();
         }
         private void UpdateAoT()
         {

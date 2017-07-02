@@ -54,7 +54,8 @@ namespace DotaTextGame.Heroes
         protected override void InitPassiveAbilities()
         {
             CriticalHitMultiplier += BladeDanceCriticalMult;
-            CriticalHitChance += BladeDanceCriticalChance;
+            CriticalHitChanceDefault += BladeDanceCriticalChance;
+            SetRandomChancesDefault();
         }
 
         public override IHero Copy(Sender sender)

@@ -54,8 +54,9 @@ namespace DotaTextGame.Heroes
         }
         protected override void InitPassiveAbilities()
         {
-            StunHitChance += BotD_BushChance;
+            StunHitChanceDefault += BotD_BushChance;
             StunDamage += BotD_BushDamage;
+            SetRandomChancesDefault();
         }
         public override void GetDamage(float value)
         {
