@@ -77,8 +77,26 @@ namespace DotaTextGame
 
                     string allHero = string.Join("\n", Game.hero_list.Select(x => x.Name));
 
-                    await player.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(player.User));
-                    await enemyPlayer.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(enemyPlayer.User));
+                    try
+                    {
+                        await player.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(player.User));
+                        await enemyPlayer.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(enemyPlayer.User));
+                    }
+                    catch (Newtonsoft.Json.JsonReaderException ex)
+                    {
+                        Console.WriteLine($"Game 87: One error is caught! Error: {ex.Message}");
+                        await player.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(player.User));
+                        await enemyPlayer.SendAsync(lang => $"{lang.StringHeroes}:\n{allHero}\n{lang.PickHero}:", GetKeyboardNextPage(enemyPlayer.User));
+                    }
+                    finally
+                    {
+                        Console.WriteLine("Game 93: Unexpected exception!");
+                        await player.SendAsync(lang => lang.Error);
+                        await enemyPlayer.SendAsync(lang => lang.Error);
+                        player.Reset();
+                        enemyPlayer.Reset();
+                        game.Reset();
+                    }
                 }
                 else
                 {
@@ -108,9 +126,9 @@ namespace DotaTextGame
             {
                 Random random = new Random();
                 if (random.Next(0, 2) == 0)
-                    SetAttackerAndExcepter(player, enemyPlayer);
+                    await SetAttackerAndExcepter(player, enemyPlayer);
                 else
-                    SetAttackerAndExcepter(enemyPlayer, player);
+                    await SetAttackerAndExcepter(enemyPlayer, player);
             }
             else
             {
@@ -119,7 +137,7 @@ namespace DotaTextGame
             }
         }
 
-        private async void SetAttackerAndExcepter(PlayerGameContext attacker, PlayerGameContext excepter)
+        private async Task SetAttackerAndExcepter(PlayerGameContext attacker, PlayerGameContext excepter)
         {
             attacker.User.LastMoveTime = Main.Time;
             excepter.User.LastMoveTime = Main.Time;
@@ -186,15 +204,16 @@ namespace DotaTextGame
         public async Task LeaveGame()
         {
             var kb = new Telegram.Bot.Types.ReplyMarkups.ReplyKeyboardHide();
-            player.User.AddLose();
-            enemyPlayer.User.AddWin();
+            await player.User.AddLose();
+            await enemyPlayer.User.AddWin();
             await player.SendAsync(lang => lang.Retreat, kb);
             await enemyPlayer.SendAsync(lang => lang.RetreatEnemy, kb);
-
+            await player.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
+            await enemyPlayer.User.Sender.SendPhotoWithText(lang => lang.GetAds(), "http://cdn1.savepice.ru/uploads/2017/6/18/f3a68821810058281cb2e19aa0dd1bc0-full.png");
             game.Reset();
         }
 
-        public async void CheckInactive()
+        public async Task CheckInactive()
         {
             if (Main.Time - enemyPlayer.User.LastMoveTime >= 500)
             {
@@ -328,14 +347,14 @@ namespace DotaTextGame
         {
             var kb = new Telegram.Bot.Types.ReplyMarkups.ReplyKeyboardHide();
 
-            winner.User.AddWin();
+            await winner.User.AddWin();
             winner.User.status = User.Status.Default;
             await winner.SendAsync(lang => lang.GameFinished, kb);
             await winner.SendAsync(lang => GetWinMessage(winner, loser, lang));
             await winner.SendAsync(lang => GetMessageForMe(lang, winner.hero));
             await winner.SendAsync(lang => GetMessageForEnemy(lang, loser.hero));
 
-            loser.User.AddLose();
+            await loser.User.AddLose();
             loser.User.status = User.Status.Default;
             await loser.SendAsync(lang => lang.GameFinished, kb);
             await loser.SendAsync(lang => GetWinMessage(winner, loser, lang));

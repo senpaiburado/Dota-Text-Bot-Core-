@@ -15,17 +15,17 @@ namespace DotaTextGame
         static void Main(string[] args)
         {
             string connection = "Server=localhost;Uid=root;pwd=xjkfr2017;CharSet=utf8;";
-            User.con = new MySql.Data.MySqlClient.MySqlConnection(connection);
+            var con = new MySql.Data.MySqlClient.MySqlConnection(connection);
 
-            MySql.Data.MySqlClient.MySqlCommand com = new MySql.Data.MySqlClient.MySqlCommand("", User.con);
-            User.con.Open();
+            MySql.Data.MySqlClient.MySqlCommand com = new MySql.Data.MySqlClient.MySqlCommand("", con);
+            con.Open();
             com.CommandText = "CREATE DATABASE IF NOT EXISTS User;";
             com.ExecuteNonQuery();
             com.CommandText = "USE User;";
             com.ExecuteNonQuery();
             com.CommandText = "CREATE TABLE IF NOT EXISTS user (id BIGINT, name VARCHAR(30), language VARCHAR(25), wins INT, loses INT, rating BIGINT);";
             com.ExecuteNonQuery();
-            User.con.Close();
+            con.Close();
             com = null;
             Main main = new Main();
             main.bw_DoWork("347404910:AAHBQ4as_Z05pDctUYD5go0rtbXM78Fk92E").Wait();

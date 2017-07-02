@@ -132,7 +132,15 @@ namespace DotaTextGame
         public User GetUserByName(string name)
         {
             name = name.ToLower();
-            return users.Values.SingleOrDefault(x => x.Name.ToLower() == name);
+            try
+            {
+                return users.Values.SingleOrDefault(x => x.Name.ToLower() == name);
+            }
+            catch (ArgumentNullException ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
 
         public long GetIdByName(string name)
@@ -148,12 +156,10 @@ namespace DotaTextGame
         private async Task InitializeFromFiles()
         {
             List<User> list = new List<User>();
-            using (User.con)
+            using (var con = new MySqlConnection(User.connection))
             {
-                MySql.Data.MySqlClient.MySqlCommand com = new MySql.Data.MySqlClient.MySqlCommand();
-                com.CommandText = "SELECT id, name, language, wins, loses, rating from user";
-                com.Connection = User.con;
-                await User.con.OpenAsync();
+                MySqlCommand com = new MySqlCommand("SELECT id, name, language, wins, loses, rating from user;", con);
+                await con.OpenAsync();
 
                 MySqlDataReader reader = com.ExecuteReader();
                 if (reader.HasRows)
@@ -172,7 +178,7 @@ namespace DotaTextGame
                         list.Add(user);
                     }
                 }
-                await User.con.CloseAsync();
+                await con.CloseAsync();
                 foreach (var x in list)
                 {
                     await x.Init();
@@ -214,29 +220,26 @@ namespace DotaTextGame
         {
             if (users.ContainsKey(UserID))
             {
-                MySqlCommand com = new MySqlCommand($"DELETE FROM user WHERE id = {UserID};", User.con);
-                await User.con.OpenAsync();
-                try
+                using (var con = new MySqlConnection(User.connection))
                 {
-                    await com.ExecuteNonQueryAsync();
+                    MySqlCommand com = new MySqlCommand($"DELETE FROM user WHERE id = {UserID};", con);
+                    await con.OpenAsync();
+                    try
+                    {
+                        await com.ExecuteNonQueryAsync();
+                    }
+                    catch (System.Data.Common.DbException ex)
+                    {
+                        Console.WriteLine($"Error at Users 233: {ex.Message}");
+                        if (con.State == System.Data.ConnectionState.Open)
+                            await con.CloseAsync();
+                        return false;
+                    }
+                    await con.CloseAsync();
+                    users.Remove(UserID);
+                    return true;
                 }
-                catch (MySqlException ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    User.con = new MySqlConnection(User.connection);
-                    com.Connection = User.con;
-                    await com.ExecuteNonQueryAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                    getUserByID(UserID)?.Sender?.SendAsync(lang => $"{lang.Error}!");
-                }
-                await User.con.CloseAsync();
-                users.Remove(UserID);
-                return true;
             }
-
             return false;
         }
 
@@ -272,18 +275,16 @@ namespace DotaTextGame
         public int rate = 1000;
 
         public static string connection = "server=127.0.0.1;database=User;uid=root;password=xjkfr2017;CharSet=utf8;";
-        public static MySql.Data.MySqlClient.MySqlConnection con;
-        MySql.Data.MySqlClient.MySqlCommand command = new MySql.Data.MySqlClient.MySqlCommand("", con);
         bool Made = false;
 
-        public async void AddWin()
+        public async Task AddWin()
         {
             wins++;
             rate += 25;
             await SaveToFile();
         }
 
-        public async void AddLose()
+        public async Task AddLose()
         {
             loses++;
             rate -= 25;
@@ -320,26 +321,32 @@ namespace DotaTextGame
 
         public async Task Init()
         {
-            await con.OpenAsync();
             status = Status.Default;
             net_status = NetworkStatus.Offline;
 
-            command.CommandText = $"SELECT 1 FROM user WHERE id = {ID} limit 1;";
-            try
+            using (var con = new MySqlConnection(connection))
             {
-                await command.ExecuteNonQueryAsync();
-                if (await command.ExecuteScalarAsync() != DBNull.Value && await command.ExecuteScalarAsync() != null)
+                var command = new MySqlCommand($"SELECT 1 FROM user WHERE id = {ID} limit 1;", con);
+                await con.OpenAsync();
+                try
                 {
-                    Made = true;
+                    await command.ExecuteNonQueryAsync();
+                    if (await command.ExecuteScalarAsync() != DBNull.Value && await command.ExecuteScalarAsync() != null)
+                    {
+                        Made = true;
+                    }
+                    else
+                        Made = false;
                 }
-                else
+                catch (System.Data.Common.DbException ex)
+                {
+                    Console.WriteLine($"Error at Users 344: {ex.Message}");
                     Made = false;
-            } catch (MySql.Data.MySqlClient.MySqlException ex)
-            {
-                Console.WriteLine(ex.Message);
-                Made = false;
+                    if (con.State == System.Data.ConnectionState.Open)
+                        await con.CloseAsync();
+                }
+                await con.CloseAsync();
             }
-            await con.CloseAsync();
         }
 
         public void InitSender(Telegram.Bot.TelegramBotClient Bot)
@@ -355,19 +362,36 @@ namespace DotaTextGame
 
         public async Task SaveToFile()
         {
-            await con.OpenAsync();
-            if (Made)
+            using (var con = new MySqlConnection(connection))
             {
-                command.CommandText = $"UPDATE user SET name='{Name}', language='{lang.lang.ToString()}', wins={wins}, loses={loses}, rating={rate} WHERE id={ID};";
-                await command.ExecuteNonQueryAsync();
+                var command = new MySqlCommand("", con);
+                try
+                {
+                    if (Made)
+                    {
+                        command.CommandText = $"UPDATE user SET name='{Name}', language='{lang.lang.ToString()}', wins={wins}, loses={loses}, rating={rate} WHERE id={ID};";
+                    }
+                    else
+                    {
+                        Made = true;
+                        command.CommandText = $"INSERT INTO user VALUES ({ID}, '{Name}', '{lang.lang.ToString()}', {wins}, {loses}, {rate});";
+                    }
+                    await con.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+                    await con.CloseAsync();
+                }
+                catch (System.Data.Common.DbException ex)
+                {
+                    Console.WriteLine($"Error at Users 385: {ex.Message}");
+                    if (con.State == System.Data.ConnectionState.Open)
+                        await con.CloseAsync();
+                }
+                finally
+                {
+                    Console.WriteLine("Error by code.");
+                    await Sender?.SendAsync(lang => lang.Error);
+                }
             }
-            else
-            {
-                Made = true;
-                command.CommandText = $"INSERT INTO user VALUES ({ID}, '{Name}', '{lang.lang.ToString()}', {wins}, {loses}, {rate});";
-                await command.ExecuteNonQueryAsync();
-            }
-            await con.CloseAsync();
         }
 
         public class Text
@@ -2157,7 +2181,7 @@ namespace DotaTextGame
                         string msg = "";
                         msg += "Qiwi - 380666122552 (Рубли)\n";
                         msg += "ПриватБанк - 5168757311202479 (Гривны)\n";
-                        msg += "Webmoney WMU - U202606251553 (Гривы)\n";
+                        msg += "Webmoney WMU - U202606251553 (Гривны)\n";
                         msg += "Webmoney WMZ - Z378442228645 (Доллары)\n";
                         msg += "Webmoney WME - E090510764182 (Евро)\n";
                         return msg;

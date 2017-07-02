@@ -112,7 +112,7 @@ namespace DotaTextGame.Heroes
         }
         protected override void UpdateCounters()
         {
-            UpdateAphoticShield();
+            UpdateAphoticShield().Wait();
             UpdateCoA();
             UpdateBorrowedTime();
         }
@@ -153,7 +153,7 @@ namespace DotaTextGame.Heroes
             if (BorrowedTimeCD > 0)
                 BorrowedTimeCD--;
         }
-        private async void UpdateAphoticShield()
+        private async Task UpdateAphoticShield()
         {
             if (AphoticShieldCounter < AphoticShieldDuration && AphoticShieldActivated && Convert.ToInt32(
                 AphoticShieldDamageAbsorption) > 0)

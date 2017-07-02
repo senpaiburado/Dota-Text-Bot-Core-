@@ -122,7 +122,7 @@ namespace DotaTextGame.Heroes
 
         protected override void UpdateCounters()
         {
-            UpdateUnstableConcoction();
+            UpdateUnstableConcoction().Wait();
             UpdateGreevilsPower();
             UpdateChemicalRage();
         }
@@ -148,7 +148,7 @@ namespace DotaTextGame.Heroes
             }
         }
 
-        private async void UpdateUnstableConcoction()
+        private async Task UpdateUnstableConcoction()
         {
             if (UnstableConcoctionCounter < UnstableConcoctionTimeToThrow && UnstableConcoctionActivated)
                 UnstableConcoctionCounter++;
